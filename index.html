@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HAVAŞ Maaş Hesaplama</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #003865, #006db1);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 700px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 1s ease-out;
+    }
+
+    header img {
+      width: 160px;
+      margin-bottom: 30px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      background-color: white;
+      padding: 10px;
+      border-radius: 12px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      text-align: center;
+      font-weight: 400;
+      font-size: 16px;
+      margin-bottom: 30px;
+      opacity: 0.8;
+    }
+
+    label {
+      display: block;
+      margin-top: 18px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      margin-top: 6px;
+      border-radius: 10px;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      outline: none;
+    }
+
+    input[type="number"]::placeholder {
+      color: #ddd;
+    }
+
+    button {
+      margin-top: 30px;
+      width: 100%;
+      background-color: #00bcd4;
+      color: white;
+      border: none;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #00acc1;
+      transform: scale(1.02);
+    }
+
+    #sonuc {
+      margin-top: 40px;
+      background-color: rgba(255, 255, 255, 0.15);
+      padding: 25px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    th {
+      color: #ffd600;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 480px) {
+      .glass-card {
+        padding: 20px;
+      }
+      h1 {
+        font-size: 22px;
+      }
+      h2 {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glass-card">
+    <header>
+      <img src="./assets/havas-logo.png" alt="Havaş Logo" />
+    </header>
+    <h1>Part-Time Maaş Hesaplama</h1>
+    <h2>Günlük Vardiyalara Göre Otomatik Hesaplama</h2>
+
+    <div id="inputFields"></div>
+    <button onclick="hesaplaMaas()">Maaşı Hesapla</button>
+    <div id="sonuc"></div>
+  </div>
+
+  <script>
+    const vardiyaBilgileri = {
+      s1: { ad: "S1 (08:00–17:00)", saat: 8 },
+      a1: { ad: "A1 (16:30–24:00)", saat: 7 },
+      g1: { ad: "G1 (00:00–08:00)", saat: 7 },
+      s2: { ad: "S2 (10:00–20:00)", saat: 9 },
+      s3: { ad: "S3 (10:00–17:00)", saat: 6.5 }
+    };
+
+    const saatlikUcret = 20;
+    const tazminat = 0;
+    const prim = 0;
+
+    const inputContainer = document.getElementById("inputFields");
+    for (const key in vardiyaBilgileri) {
+      const label = document.createElement("label");
+      label.innerText = vardiyaBilgileri[key].ad + " gün:";
+
+      const input = document.createElement("input");
+      input.type = "number";
+      input.id = key;
+      input.min = 0;
+      input.step = 1;
+      input.placeholder = "0";
+
+      inputContainer.appendChild(label);
+      inputContainer.appendChild(input);
+    }
+
+    function hesaplaMaas() {
+      let toplamSaat = 0;
+      let detaySatirlari = "";
+
+      for (const key in vardiyaBilgileri) {
+        const gunSayisi = parseFloat(document.getElementById(key).value) || 0;
+        const calismaSaati = vardiyaBilgileri[key].saat * gunSayisi;
+        toplamSaat += calismaSaati;
+
+        if (gunSayisi > 0) {
+          detaySatirlari += `
+            <tr>
+              <td>${vardiyaBilgileri[key].ad}</td>
+              <td>${gunSayisi}</td>
+              <td>${vardiyaBilgileri[key].saat} saat</td>
+              <td>${calismaSaati.toFixed(1)} saat</td>
+            </tr>`;
+        }
+      }
+
+      const saatlikMaas = toplamSaat * saatlikUcret;
+      const toplamMaas = saatlikMaas + tazminat + prim;
+
+      document.getElementById("sonuc").innerHTML = `
+        <strong>Saatlik Ücret:</strong> ₺${saatlikUcret.toFixed(2)}<br>
+        <strong>Toplam Çalışma Süresi:</strong> ${toplamSaat.toFixed(1)} saat<br>
+        <strong style="color:#ffd600;">TOPLAM MAAŞ: ₺${toplamMaas.toFixed(2)}</strong>
+        <table>
+          <thead>
+            <tr>
+              <th>Vardiya</th>
+              <th>Gün</th>
+              <th>Vardiya Süresi</th>
+              <th>Toplam Saat</th>
+            </tr>
+          </thead>
+          <tbody>${detaySatirlari}</tbody>
+        </table>
+      `;
+    }
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        hesaplaMaas();
+      }
+    });
+  </script>
+</body>
+</html>
